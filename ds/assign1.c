@@ -4,105 +4,105 @@
 
 
 typedef struct ListNode {
-	float coef;
-	int expo;
-	struct ListNode* link;
+  float coef;
+  int expo;
+  struct ListNode* link;
 } ListNode;
 
 typedef struct ListHead {
-	ListNode* head;
+  ListNode* head;
 } ListHead;
 
 ListHead* createLinkedList(void)
 {
-	ListHead* L;
-	L = (ListHead *)malloc(sizeof(ListHead));
-	L->head = NULL;
-	return L;
+  ListHead* L;
+  L = (ListHead *)malloc(sizeof(ListHead));
+  L->head = NULL;
+  return L;
 }
 
 void addNode(ListHead* L, ListNode* newNode) {
   ListNode* p;
 
-	p = (ListNode *)malloc(sizeof(ListNode));
+  p = (ListNode *)malloc(sizeof(ListNode));
   if(L->head == NULL) {
-	   L->head = newNode;
-	   return;
-	} else {
-	  p = L->head;
-	  while(p->link != NULL) {
+    L->head = newNode;
+    return;
+  } else {
+    p = L->head;
+    while(p->link != NULL) {
       p = p->link;
-	  }
+    }
   }
 
-	p->link = newNode;
+  p->link = newNode;
 }
 
 void addLastNode(ListHead* L, float coef, int expo)
 {
-	ListNode* newNode;
-	ListNode* p;
-	newNode = (ListNode *)malloc(sizeof(ListNode));
-	newNode->coef = coef;
+  ListNode* newNode;
+  ListNode* p;
+  newNode = (ListNode *)malloc(sizeof(ListNode));
+  newNode->coef = coef;
 
-	newNode->expo = expo;
-	newNode->link = NULL;
+  newNode->expo = expo;
+  newNode->link = NULL;
 
   if(L->head == NULL) {
-	   L->head = newNode;
-	   return;
-	} else {
-	  p = L->head;
-	  while(p->link != NULL) {
+    L->head = newNode;
+    return;
+  } else {
+    p = L->head;
+    while(p->link != NULL) {
       p = p->link;
-	  }
+    }
   }
-	p->link = newNode;
+  p->link = newNode;
 }
 
 void addPoly(ListHead* A, ListHead* B, ListHead* C)
 {
-	ListNode* pA = A->head;
-	ListNode* pB = B->head;
-	float sum;
+  ListNode* pA = A->head;
+  ListNode* pB = B->head;
+  float sum;
 
-	while(pA && pB){
-	   if(pA->expo == pB->expo){
- 			sum = pA->coef + pB->coef;
- 			addLastNode(C, sum, pA->expo);
- 			pA=pA->link; pB=pB->link;
-	   }
-	   else if(pA->expo > pB->expo){
- 			addLastNode(C, pA->coef, pA->expo);
-			pA=pA->link;
-	   }
-	   else {
-			addLastNode(C, pB->coef, pB->expo);
- 			pB=pB->link;
-	   }
-	}
+  while(pA && pB){
+    if(pA->expo == pB->expo){
+      sum = pA->coef + pB->coef;
+      addLastNode(C, sum, pA->expo);
+      pA=pA->link; pB=pB->link;
+    }
+    else if(pA->expo > pB->expo){
+      addLastNode(C, pA->coef, pA->expo);
+      pA=pA->link;
+    }
+    else {
+      addLastNode(C, pB->coef, pB->expo);
+      pB=pB->link;
+    }
+  }
 
-	for( ; pA!=NULL; pA=pA->link)
-	   addLastNode(C, pA->coef, pA->expo);
+  for( ; pA!=NULL; pA=pA->link)
+    addLastNode(C, pA->coef, pA->expo);
 
-	for( ; pB!=NULL; pB=pB->link)
-		   addLastNode(C, pB->coef, pB->expo);
+  for( ; pB!=NULL; pB=pB->link)
+    addLastNode(C, pB->coef, pB->expo);
 }
 
 void printPoly(ListHead* L)
 {
   ListNode* p = L->head;
   for(;p;p=p->link) {
-     printf("%3.0fx^%d", p->coef, p->expo);
+    printf("%3.0fx^%d", p->coef, p->expo);
   }
 }
 
 ListHead* multPoly(ListHead* l1, ListHead* l2)
 {
-	ListHead *A;
+  ListHead *A;
   ListNode* x = l1->head;
 
-	A = createLinkedList();
+  A = createLinkedList();
   for(; x; x=x->link) {
     ListNode* y = l2->head;
     for(; y; y=y->link) {
@@ -114,7 +114,7 @@ ListHead* multPoly(ListHead* l1, ListHead* l2)
 }
 
 ListHead* tokenize(char* sources) {
-	ListHead *A;
+  ListHead *A;
   char buf[1024];
   float coef;
   int expo;
@@ -122,7 +122,7 @@ ListHead* tokenize(char* sources) {
   int i = 0;
   int is_coef = 1;
 
-	A = createLinkedList();
+  A = createLinkedList();
 
   while(i < strlen(sources)) {
     char token = sources[i];
