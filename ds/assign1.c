@@ -95,6 +95,7 @@ void printPoly(ListHead* L)
   for(;p;p=p->link) {
     printf("%3.0fx^%d", p->coef, p->expo);
   }
+  printf("\n");
 }
 
 ListHead* multPoly(ListHead* l1, ListHead* l2)
@@ -115,7 +116,7 @@ ListHead* multPoly(ListHead* l1, ListHead* l2)
 
 ListHead* tokenize(char* sources) {
   ListHead *A;
-  char buf[1024];
+  char buf[20];
   float coef;
   int expo;
   char *temp;
@@ -131,8 +132,10 @@ ListHead* tokenize(char* sources) {
     if(token == ' ' || token == '^') {
       continue;
     } else if(token == 'x') {
-      if(strcmp(buf, "") == 0) {
+      if(strcmp(buf, "") == 0 || strcmp(buf, "+") == 0) {
         coef = 1.0;
+      } else if(strcmp(buf, "-") == 0) {
+        coef = -1.0;
       } else {
         coef = strtof(buf, &temp);
       }
@@ -169,13 +172,21 @@ ListHead* tokenize(char* sources) {
 
 
 int main() {
-  char s[256];
-  strcpy(s, "x + 1");
-  ListHead* l1 = tokenize(s);
-  ListHead* l2 = tokenize(s);
+  char s1[256];
+  char s2[256];
+  ListHead* l1;
+  ListHead* l2;
 
-  ListHead* l3 = multPoly(l1, l2);
+  l1 = (ListHead *)malloc(sizeof(ListHead));
+  l2 = (ListHead *)malloc(sizeof(ListHead));
 
-  printPoly(l3);
+  printf("1 : ");
+  scanf("%s", s1);
+  printf("2 : ");
+  scanf("%s", s2);
+  l1 = tokenize(s1);
+  l2 = tokenize(s2);
+  printf("3 : ");
+  printPoly(multPoly(l2, l1));
   return 0;
 }
