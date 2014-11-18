@@ -17,29 +17,35 @@ int timestamp() {
 
 FILE *infile;
 
-void noth() {
-
-}
-
-void writec() {
-  infile = fopen("pid_log.txt","a+");
-  fprintf(infile, "Child (%d)\n", getpid());
-  printf("Child (%d)\n", getpid());
-  fclose(infile);
-}
-
-void writep() {
-  infile = fopen("pid_log.txt","a+");
-  fprintf(infile, "Parent (%d)\n", getpid());
-  printf("Parent (%d)\n", getpid());
-  fclose(infile);
+void handl(int signo) {
+  switch(signo) {
+    case SIGTERM:
+      printf("SIGTERM");
+      break;
+  }
 }
 
 int start_sched(char* sched_name) {
-  printf("start_sched called \n");
   if(sched_name == NULL) {
     print_help(HELP_START);
     return 0;
+  }
+
+  pid_t pid = fork();
+
+  if(pid == 0) {
+    infile = fopen("start_schedules", "a+");
+    printf("schedule:> %s started.\n", sched_name, getpid());
+    fprintf(infile,"%s\t%d\t%d\n", sched_name, getpid(), timestamp());
+    fclose(infile);
+
+    while (1) {
+      sleep(2);
+
+      kill(getppid(), SIGCONT);
+
+      pause();
+    }
   }
 
   return 1;
