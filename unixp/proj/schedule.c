@@ -21,16 +21,16 @@ typedef struct FileExplore {
   Schedule* schedule;
 } FileExplore;
 
-FileExplore* find(char* sched_name, int pid) {
+FileExplore* find_fe(char* sched_name, int pid) {
   char l[100];
   char* tok;
   int lin_no, i, s;
   FileExplore* fe;
-  Schedule* find_sched;
   FILE* rfile = fopen("start_schedules", "r");
 
-  find_sched = (Schedule *) malloc(sizeof(Schedule));
   fe = (FileExplore *) malloc(sizeof(FileExplore));
+  fe->schedule = (Schedule *) malloc(sizeof(Schedule));
+  fe->schedule->name = NULL;
 
   if(rfile == NULL) {
     perror("error infile");
@@ -47,15 +47,15 @@ FileExplore* find(char* sched_name, int pid) {
           if(sched_name != NULL) {
             s = (int) (strcmp(tok, sched_name) == 0);
           }
-          find_sched->name = (char *) malloc(sizeof(tok));
-          strcpy(find_sched->name, sched_name);
+          fe->schedule->name = (char *) malloc(sizeof(tok));
+          strcpy(fe->schedule->name, tok);
         } else if(i == 1) {
-          find_sched->pid = atoi(tok);
+          fe->schedule->pid = atoi(tok);
           if(pid > 0) {
-            s = (int) (find_sched->pid == pid);
+            s = (int) (fe->schedule->pid == pid);
           }
         } else if(i == 2) {
-          find_sched->started_at = atoi(tok);
+          fe->schedule->started_at = atoi(tok);
         }
 
         tok = strtok(NULL, "\t");
@@ -70,112 +70,33 @@ FileExplore* find(char* sched_name, int pid) {
     }
   }
 
+  fclose(rfile);
   if(!s) {
     return NULL;
   }
 
-  fe->schedule = find_sched;
   fe->line_no = lin_no;
-
   return fe;
 }
 
 Schedule* find_start_schedule_by_name(char* sched_name) {
-  char l[100];
-  char* tok;
-  int lin_no, i, s;
-  Schedule* find_sched;
-  FILE* rfile = fopen("start_schedules", "r");
+  FileExplore* fe;
 
-  find_sched = (Schedule *) malloc(sizeof(Schedule));
+  fe = find_fe(sched_name, -1);
 
-  if(rfile == NULL) {
-    perror("error infile");
-  } else {
-    lin_no = 0;
-    s = 0;
-    while(fgets(l, 100, rfile) != NULL) {
-      i = 0;
+  if(fe == NULL) return NULL;
 
-      tok = strtok(l, "\t");
-      while(tok != NULL)
-      {
-        if(i == 0) {
-          s = (int) (strcmp(tok, sched_name) == 0);
-          find_sched->name = (char *) malloc(sizeof(tok));
-          strcpy(find_sched->name, sched_name);
-        } else if(i == 1) {
-          find_sched->pid = atoi(tok);
-        } else if(i == 2) {
-          find_sched->started_at = atoi(tok);
-        }
-
-        tok = strtok(NULL, "\t");
-        i += 1;
-      }
-
-      if(s) {
-        break;
-      }
-
-      lin_no += 1;
-    }
-  }
-
-  if(!s) {
-    return NULL;
-  }
-
-  return find_sched;
+  return fe->schedule;
 }
 
 Schedule* find_start_schedule_by_pid(int pid) {
-  char l[100];
-  char* tok;
-  int lin_no, i, s;
-  Schedule* find_sched;
-  FILE* rfile = fopen("start_schedules", "r");
+  FileExplore* fe;
 
-  find_sched = (Schedule *) malloc(sizeof(Schedule));
+  fe = find_fe(NULL, pid);
 
-  if(rfile == NULL) {
-    perror("error infile");
-  } else {
-    lin_no = 0;
-    s = 0;
-    while(fgets(l, 100, rfile) != NULL) {
-      i = 0;
+  if(fe == NULL) return NULL;
 
-      tok = strtok(l, "\t");
-      while(tok != NULL)
-      {
-        if(i == 0) {
-          find_sched->name = tok;
-          find_sched->name = (char *) malloc(sizeof(tok));
-          strcpy(find_sched->name, tok);
-        } else if(i == 1) {
-          find_sched->pid = atoi(tok);
-          s = (int) (find_sched->pid == pid);
-        } else if(i == 2) {
-          find_sched->started_at = atoi(tok);
-        }
-
-        tok = strtok(NULL, "\t");
-        i += 1;
-      }
-
-      if(s) {
-        break;
-      }
-      lin_no += 1;
-    }
-  }
-
-  if(!s) {
-    return NULL;
-  }
-
-  return find_sched;
+  return fe->schedule;
 }
 
 int timestamp() {
@@ -320,8 +241,6 @@ int main(int argc, char* argv[]) {
   }
 
   help = get_help(argv[1]);
-
-  Schedule *d;
 
   if(help >= 0) {
     switch(help) {
