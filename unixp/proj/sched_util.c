@@ -98,24 +98,25 @@ int timestamp() {
 void copy(char* source, char* target, int skip) {
   char l[100];
   FILE* sourcef = fopen(source, "r");
-  FILE* targetf = fopen(target, "w");
+  FILE* targetf = fopen(target, "w+");
   int i = 0;
 
   while(fgets(l, 100, sourcef) != NULL) {
     if(skip >= 0 && i == skip) {
+      i += 1;
       continue;
     }
     fprintf(targetf, "%s", l);
-
     i += 1;
   }
 
-  fclose(sourcef);
   fclose(targetf);
+  fclose(sourcef);
 }
 
 void clear_start_file(int line_no) {
   copy("start_schedules", "tmp", -1);
+  unlink("start_schedules");
   copy("tmp", "start_schedules", line_no);
   unlink("tmp");
 }
