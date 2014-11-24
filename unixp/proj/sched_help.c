@@ -6,6 +6,7 @@
 #define HELP_START 0
 #define HELP_DONE 1
 #define HELP_LIST 2
+#define HELP_REPORT 3
 
 void print_file(char *fname) {
   FILE* help_file = fopen(fname, "r");
@@ -40,6 +41,8 @@ int get_help(char *help_str) {
     r = HELP_DONE;
   } else if(strcmp(help_str, "list") == 0) {
     r = HELP_LIST;
+  } else if(strcmp(help_str, "report") == 0) {
+    r = HELP_REPORT;
   }
 
   return r;

@@ -22,6 +22,9 @@ int main(int argc, char* argv[]) {
       case HELP_LIST:
         list_sched(argv[2]);
         break;
+      case HELP_REPORT:
+        report_sched(argv[2]);
+        break;
     }
   } else {
     print_help(HELP_ALL);
