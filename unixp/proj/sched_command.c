@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <signal.h>
+#include <string.h>
 #include <unistd.h>
 
 #include "sched_types.h"
@@ -69,7 +70,37 @@ int done_sched(char* sched_name) {
 }
 
 int list_sched(char* arg) {
-  printf("Current schedules. ------- \n");
+  printf("Current schedules. \n");
+  printf("======================================\n");
+  printf("       schedule       pid        time \n");
+  printf("======================================\n");
+  char l[100];
+  char* tok;
+  FILE* rfile = fopen("start_schedules", "r");
+
+  int i;
+  if(rfile == NULL) {
+    perror("error infile");
+  } else {
+    while(fgets(l, 100, rfile) != NULL) {
+      i = 0;
+      tok = strtok(l, "\t");
+      while(tok != NULL)
+      {
+        if(i == 0) {
+          printf("%15s\t", tok);
+        } else if(i == 1) {
+          printf("%10s", tok);
+        } else if(i == 2) {
+          printf("%10ds\n", timestamp() - atoi(tok));
+        }
+
+        tok = strtok(NULL, "\t");
+        i += 1;
+      }
+    }
+  }
+
+  fclose(rfile);
   return 1;
 }
-
