@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/time.h>
+#include <unistd.h>
 
 #include "sched_types.h"
 
@@ -92,4 +93,29 @@ int timestamp() {
   struct timeval tv;
   gettimeofday(&tv, NULL);
   return (int) tv.tv_sec;
+}
+
+void copy(char* source, char* target, int skip) {
+  char l[100];
+  FILE* sourcef = fopen(source, "r");
+  FILE* targetf = fopen(target, "w");
+  int i = 0;
+
+  while(fgets(l, 100, sourcef) != NULL) {
+    if(skip >= 0 && i == skip) {
+      continue;
+    }
+    fprintf(targetf, "%s", l);
+
+    i += 1;
+  }
+
+  fclose(sourcef);
+  fclose(targetf);
+}
+
+void clear_start_file(int line_no) {
+  copy("start_schedules", "tmp", -1);
+  copy("tmp", "start_schedules", line_no);
+  unlink("tmp");
 }

@@ -13,6 +13,7 @@ void handl(int signo) {
   FILE* outfile;
   int pid;
   struct Schedule* term_sched;
+  struct FileExplore* fe;
 
   switch(signo) {
     case SIGTERM:
@@ -21,6 +22,8 @@ void handl(int signo) {
       if(term_sched != NULL) {
         term_sched->done_at = timestamp();
         logging_done_schedule(term_sched);
+        fe = find_fe(term_sched->name, -1);
+        clear_start_file(fe->line_no);
       }
 
       kill(pid, SIGKILL);
@@ -80,7 +83,7 @@ int list_sched(char* arg) {
 
   int i;
   if(rfile == NULL) {
-    perror("error infile");
+    perror("schedule isn't started yet");
   } else {
     while(fgets(l, 100, rfile) != NULL) {
       i = 0;
