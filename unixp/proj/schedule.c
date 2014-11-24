@@ -79,6 +79,7 @@ FileExplore* find(char* sched_name, int pid) {
 
   return fe;
 }
+
 Schedule* find_start_schedule_by_name(char* sched_name) {
   char l[100];
   char* tok;
@@ -185,12 +186,14 @@ int timestamp() {
 }
 
 
-void logging_done_schedule(char* name, int started_at, int done_at) {
+void logging_done_schedule(Schedule *sched) {
   FILE* logfile;
   logfile = fopen("done_schedules", "a+");
 
   if(logfile != NULL) {
-    fprintf(logfile, "%s\t%d\t%d\n", name, started_at, done_at);
+    fprintf(
+        logfile, "%s\t%d\t%d\n",
+        sched->name, sched->started_at, sched->done_at);
     fclose(logfile);
   }
 }
@@ -206,8 +209,7 @@ void handl(int signo) {
       term_sched = find_start_schedule_by_pid(pid);
       if(term_sched != NULL) {
         term_sched->done_at = timestamp();
-        logging_done_schedule(
-            term_sched->name, term_sched->started_at, term_sched->done_at);
+        logging_done_schedule(term_sched);
       }
 
       kill(pid, SIGKILL);
