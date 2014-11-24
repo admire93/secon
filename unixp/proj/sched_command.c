@@ -10,6 +10,14 @@
 #include "sched_util.h"
 #include "sched_help.h"
 
+/** 시그널을 핸들링하는 핸들러.
+ *
+ * `SIGTERM` 이 들어오면 현재 프로세스의 스케쥴 이름을 찾아와서 기록하고,
+ * 진행중인 스케쥴에서 제외시킵니다. 마지막에 프로세스를 죽입니다.
+ *
+ * @param int signo 프로세스에 전해지는 signal SIGTERM, SIGCONT 같은
+ *            signal들이 들어올수있습니다.
+ */
 void handl(int signo) {
   FILE* outfile;
   int pid;
@@ -32,6 +40,14 @@ void handl(int signo) {
   }
 }
 
+/** start 할때 실행되는 함수
+ *
+ * 인자로 스케쥴의 이름을 받아서 스케쥴 이름에 해당하는 스케쥴을 자식 프로세스로
+ * 생성합니다. 시그널 핸들러로 `handl` 을 등록합니다. SIGTERM 일때 핸들러를
+ * 호출합니다.
+ *
+ * @param char* sched_name 실행시킬 스케쥴 이름
+ */
 int start_sched(char* sched_name) {
   if(sched_name == NULL) {
     print_help(HELP_START);
@@ -56,6 +72,13 @@ int start_sched(char* sched_name) {
   return 0;
 }
 
+/** done 할때 실행되는 함수
+ *
+ * 인자로 스케쥴의 이름을 받아서 스케쥴 이름에 해당하는 스케쥴을 종료합니다.
+ * SIGTERM을 해당 프로세스에 시그널로 전달합니다.
+ *
+ * @param char* sched_name 종료시킬 스케쥴 이름
+ */
 int done_sched(char* sched_name) {
   struct Schedule* done_schedule = find_start_schedule_by_name(sched_name);
 
@@ -73,6 +96,12 @@ int done_sched(char* sched_name) {
   return 1;
 }
 
+/** list 할때 실행되는 함수
+ *
+ * 현재 실행중인 스케쥴들을 리스팅합니다.
+ *
+ * @param char* arg 스케쥴 이름
+ */
 int list_sched(char* arg) {
   printf("Current schedules. \n");
   printf("======================================\n");
@@ -109,6 +138,11 @@ int list_sched(char* arg) {
   return 1;
 }
 
+/** 종료된 스케줄중에 가장 오래걸린 스케쥴의 시간을 찾습니다.
+ *
+ * @return int 가장 오래걸린 스케쥴의 시간
+ *
+ */
 int calc_max_time() {
   int i;
   int cur;
@@ -143,6 +177,13 @@ int calc_max_time() {
   return max;
 }
 
+
+/** report 할때 실행되는 함수
+ *
+ * 종료된 스케쥴들을 리스팅합니다. 시간에 따라서 막대바의 크기 또한 바뀝니다.
+ *
+ * @param char* arg 스케쥴 이름
+ */
 int report_sched(char *arg) {
   char l[100];
   int i, j, cur;

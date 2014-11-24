@@ -1,6 +1,12 @@
 #include "sched_help.h"
 #include "sched_command.h"
 
+/** 스케쥴 명령어를 받아서 처리합니다.
+ *
+ * @param int argc 받아온 argument의 갯수
+ * @param char* [] argv 받아온 argument 들
+ *
+ */
 int main(int argc, char* argv[]) {
   int help;
 
