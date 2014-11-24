@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <string.h>
 #include <sys/types.h>
 #include <stdlib.h>
 #include <sys/wait.h>
@@ -35,8 +36,8 @@ int start_sched(char* sched_name) {
 
   if(pid == 0) {
     infile = fopen("start_schedules", "a+");
-    printf("schedule:> %s started.\n", sched_name, getpid());
-    fprintf(infile,"%s\t%d\t%d\n", sched_name, getpid(), timestamp());
+    printf("schedule:> %s started. (%d) \n", sched_name, getpid());
+    fprintf(infile, "%s\t%d\t%d\n", sched_name, getpid(), timestamp());
     fclose(infile);
 
     while (1) {
@@ -52,9 +53,49 @@ int start_sched(char* sched_name) {
 }
 
 int done_sched(char* sched_name) {
+  char l[100];
+  char* tok;
+  int lin_no;
+  int i;
+  int s;
+
   if(sched_name == NULL) {
     print_help(HELP_DONE);
     return 0;
+  }
+
+  infile = fopen("start_schedules", "r");
+
+  if(infile == NULL) {
+    perror("error infile");
+  } else {
+    s = 0;
+    lin_no = 0;
+    while(fgets(l, 100, infile) != NULL) {
+
+      i = 0;
+
+      tok = strtok(l, "\t");
+      while(tok != NULL)
+      {
+        if(i == 0) {
+          s = (int) (strcmp(tok, sched_name) == 0);
+        }
+
+        if(i == 1) {
+          if(s) {
+            printf("done:> schedule(pid=%s)\n", tok);
+            kill(atoi(tok), SIGTERM);
+          }
+          break;
+        }
+
+        tok = strtok(NULL, "\t");
+        i += 1;
+      }
+
+      lin_no += 1;
+    }
   }
 
   return 1;
