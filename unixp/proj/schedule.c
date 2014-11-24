@@ -107,7 +107,7 @@ int timestamp() {
 }
 
 
-void logging_done_schedule(Schedule *sched) {
+void logging_done_schedule(Schedule* sched) {
   FILE* logfile;
   logfile = fopen("done_schedules", "a+");
 
@@ -117,6 +117,13 @@ void logging_done_schedule(Schedule *sched) {
         sched->name, sched->started_at, sched->done_at);
     fclose(logfile);
   }
+}
+
+void logging_start_schedule(char* sched_name, int pid, int ts) {
+  FILE* infile;
+  infile = fopen("start_schedules", "a+");
+  fprintf(infile, "%s\t%d\t%d\n", sched_name, pid, ts);
+  fclose(infile);
 }
 
 void handl(int signo) {
@@ -143,7 +150,6 @@ void print_noti(char* act, char* sched_name, int pid) {
 }
 
 int start_sched(char* sched_name) {
-  FILE *infile;
   if(sched_name == NULL) {
     print_help(HELP_START);
     return 0;
@@ -153,9 +159,7 @@ int start_sched(char* sched_name) {
 
   if(pid == 0) {
     print_noti("start", sched_name, getpid());
-    infile = fopen("start_schedules", "a+");
-    fprintf(infile, "%s\t%d\t%d\n", sched_name, getpid(), timestamp());
-    fclose(infile);
+    logging_start_schedule(sched_name, getpid(), timestamp());
 
     if(signal(SIGTERM, handl) == SIG_ERR) {
       printf("term error");
@@ -167,47 +171,6 @@ int start_sched(char* sched_name) {
   }
 
   return 0;
-}
-
-int find_pid_from_file(char* sched_name) {
-  char l[100];
-  char* tok;
-  int lin_no;
-  int i;
-  int s;
-  FILE* rfile = fopen("start_schedules", "r");
-
-  if(rfile == NULL) {
-    perror("error infile");
-  } else {
-    s = 0;
-    lin_no = 0;
-    while(fgets(l, 100, rfile) != NULL) {
-
-      i = 0;
-
-      tok = strtok(l, "\t");
-      while(tok != NULL)
-      {
-        if(i == 0) {
-          s = (int) (strcmp(tok, sched_name) == 0);
-        }
-
-        if(i == 1) {
-          if(s) {
-            return atoi(tok);
-          }
-        }
-
-        tok = strtok(NULL, "\t");
-        i += 1;
-      }
-
-      lin_no += 1;
-    }
-  }
-
-  return -1;
 }
 
 int done_sched(char* sched_name) {
